@@ -1,0 +1,138 @@
+# 🔐 Sensitive Files - NEVER commit these!
+credentials.json
+token.json
+.env
+*.env
+.env.*
+
+# 🔑 API Keys and Secrets
+**/secrets/
+**/config/secrets.yaml
+**/config/secrets.json
+.secrets
+api_keys.txt
+openai_key.txt
+
+# 🐍 Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+share/python-wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# 🌐 Virtual Environments
+venv/
+ENV/
+env/
+.venv/
+.ENV/
+.env/
+pip-log.txt
+pip-delete-this-directory.txt
+.tox/
+.nox/
+.coverage
+.pytest_cache/
+cover/
+
+# 🔧 IDE & Editors
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# 📦 Package Managers
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.npm
+.eslintcache
+
+# 🗂 OS Generated Files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+desktop.ini
+
+# 📋 Logs
+*.log
+logs/
+*.log.*
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+lerna-debug.log*
+.pnpm-debug.log*
+
+# 🧪 Testing
+.coverage
+.pytest_cache/
+.tox/
+.nox/
+coverage.xml
+*.cover
+*.py,cover
+.hypothesis/
+
+# 📝 Temporary Files
+*.tmp
+*.temp
+.cache/
+.parcel-cache/
+.next/
+.nuxt/
+.vuepress/dist
+.serverless/
+
+# 🚀 Deployment
+.vercel
+.netlify/
+
+# 🔧 Configuration (keep templates, ignore actual configs)
+config.json
+local_settings.py
+instance/
+.webassets-cache
+
+# 📊 Data Files (if any)
+*.csv
+*.xlsx
+*.sqlite
+*.db
+data/
+datasets/
+
+# 🎯 Project Specific
+# Add any project-specific files to ignore here
+test_events.json
+backup_*.json
