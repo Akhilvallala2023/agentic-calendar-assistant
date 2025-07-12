@@ -3,7 +3,14 @@ import datetime
 from dotenv import load_dotenv
 from openai import OpenAI
 from agents import Agent, Runner
-from calendar_tools import create_calendar_event, list_upcoming_events
+from calendar_tools import (
+    create_calendar_event,
+    list_upcoming_events,
+    delete_event,
+    reschedule_event,
+    reschedule_event_by_title,
+    delete_event_by_title
+)
 
 # Load environment variables
 load_dotenv()
@@ -24,19 +31,26 @@ Your job is to:
 - Understand natural language requests like:
     "Book a meeting with Michael tomorrow at 5pm for 1 hour"
     "Schedule lunch next Friday at 1pm"
-- Extract event details: summary, start_datetime, duration
-- Use tools to create or list calendar events
-- Confirm with friendly replies
-
-Examples:
-- "tomorrow at 5pm" = {tomorrow_str}
-- "next Friday at 1pm" = (calculate next Friday from today, set 13:00)
-- "today at 3pm" = use {now.strftime('%Y-%m-%d')}T15:00:00
+    "Delete my meeting with Sarah"
+    "Move meeting with Sam to tomorrow at 6pm"
+    "Cancel my lunch appointment"
+    "Reschedule my doctor appointment to next week"
+- Extract event details: summary, start_datetime, duration, event_id
+- Use tools to create, delete, reschedule, or list calendar events
+- For rescheduling/deleting: Try to find events by title first, then by ID if needed
+- Confirm actions with friendly replies
 
 If no duration is provided, default to 60 minutes.
 Always use ISO format for start_datetime. Default timezone: America/New_York.
 """,
-    tools=[create_calendar_event, list_upcoming_events]
+    tools=[
+        create_calendar_event,
+        list_upcoming_events,
+        delete_event,
+        reschedule_event,
+        reschedule_event_by_title,
+        delete_event_by_title
+    ]
 )
 
 async def run_agent():
