@@ -5,8 +5,12 @@ from google_auth_oauthlib.flow import InstalledAppFlow
 from agents import function_tool
 import datetime
 import os
+import uuid
 
-SCOPES = ['https://www.googleapis.com/auth/calendar.events']
+SCOPES = [
+    'https://www.googleapis.com/auth/calendar.events',
+    'https://www.googleapis.com/auth/calendar.events.readonly'
+]
 
 def get_calendar_service():
     creds = None
@@ -23,15 +27,31 @@ def get_calendar_service():
     return build('calendar', 'v3', credentials=creds)
 
 @function_tool
-def create_calendar_event(summary: str, start_datetime: str, duration_minutes: int = 60, description: str = None) -> str:
+def create_calendar_event(summary: str, start_datetime: str, duration_minutes: int = 60, description: str = None, attendee_email: str = None) -> str:
     """
-    Create a calendar event.
+    Create a calendar event with optional Google Meet link and attendee invitation.
+    
+    Args:
+        summary (str): Event title/summary
+        start_datetime (str): Start time in ISO format (e.g., '2024-01-15T14:00:00')
+        duration_minutes (int): Duration in minutes (default: 60)
+        description (str): Event description (optional)
+        attendee_email (str): Email address to invite as attendee (optional)
+    
+    Returns:
+        str: Confirmation message with event details and Google Meet link (if generated)
+    
+    Features:
+        - Automatically generates Google Meet link when attendee_email is provided
+        - Sends calendar invitation to attendee
+        - Returns event time and Meet link for easy sharing
     """
     try:
         service = get_calendar_service()
         start = datetime.datetime.fromisoformat(start_datetime)
         end = start + datetime.timedelta(minutes=duration_minutes)
 
+        # Base event structure
         event = {
             'summary': summary,
             'description': description or 'Scheduled via Calendar Agent',
@@ -39,9 +59,44 @@ def create_calendar_event(summary: str, start_datetime: str, duration_minutes: i
             'end': {'dateTime': end.isoformat(), 'timeZone': 'America/New_York'},
         }
 
-        result = service.events().insert(calendarId='primary', body=event).execute()
+        # Add attendee if email provided
+        if attendee_email:
+            event['attendees'] = [{'email': attendee_email}]
+            
+            # Add Google Meet conference data when attendee is present
+            event['conferenceData'] = {
+                'createRequest': {
+                    'conferenceSolutionKey': {'type': 'hangoutsMeet'},
+                    'requestId': str(uuid.uuid4())  # Unique request ID
+                }
+            }
 
-        return f"📅 Event created: '{summary}' on {start.strftime('%A, %B %d at %I:%M %p')}.\n🔗 Link: {result.get('htmlLink')}"
+        # Insert event with conference data version if Meet link requested
+        if attendee_email:
+            result = service.events().insert(
+                calendarId='primary', 
+                body=event, 
+                conferenceDataVersion=1
+            ).execute()
+        else:
+            result = service.events().insert(calendarId='primary', body=event).execute()
+
+        # Build response message
+        event_time = start.strftime('%A, %B %d at %I:%M %p')
+        response = f"📅 Event created: '{summary}' on {event_time}"
+        
+        # Add attendee info if present
+        if attendee_email:
+            response += f"\n👤 Attendee invited: {attendee_email}"
+        
+        # Add Google Meet link if available
+        meet_link = result.get('hangoutLink')
+        if meet_link:
+            response += f"\n🔗 Google Meet: {meet_link}"
+        else:
+            response += f"\n🔗 Calendar Link: {result.get('htmlLink')}"
+
+        return response
     except Exception as e:
         return f"❌ Failed to create event: {str(e)}"
 
